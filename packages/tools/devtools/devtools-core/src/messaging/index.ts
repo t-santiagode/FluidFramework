@@ -36,6 +36,8 @@ export {
 	DevtoolsFeatures,
 	GetContainerList,
 	GetDevtoolsFeatures,
+	SendEdit,
+	Edit,
 } from "./devtools-messages";
 export { ISourcedDevtoolsMessage, IDevtoolsMessage } from "./Messages";
 export { IMessageRelay, IMessageRelayEvents } from "./MessageRelay";

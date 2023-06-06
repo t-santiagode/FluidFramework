@@ -220,6 +220,18 @@ export namespace DisconnectContainer {
     export type MessageData = HasContainerKey;
 }
 
+// @internal
+export namespace Edit {
+    const MessageType = "EDIT";
+    export function createMessage(data: MessageData): Message;
+    export interface Message extends IDevtoolsMessage<MessageData> {
+        type: typeof MessageType;
+    }
+    export interface MessageData extends HasContainerKey, HasFluidObjectId {
+        value: number | undefined;
+    }
+}
+
 // @public
 export interface FluidDevtoolsProps {
     dataVisualizers?: Record<string, VisualizeSharedObject>;
@@ -429,6 +441,16 @@ export namespace RootDataVisualizations {
 
 // @public
 export type RootHandleNode = FluidHandleNode | UnknownObjectNode;
+
+// @internal
+export namespace SendEdit {
+    const MessageType = "SEND_EDIT";
+    export function createMessage(data: MessageData): Message;
+    export interface Message extends IDevtoolsMessage<MessageData> {
+        type: typeof MessageType;
+    }
+    export type MessageData = HasContainerKey & HasFluidObjectId;
+}
 
 // @internal
 export interface StateChangeLogEntry<TState> extends LogEntry {

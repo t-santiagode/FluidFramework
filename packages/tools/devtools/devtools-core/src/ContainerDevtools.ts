@@ -40,6 +40,7 @@ import {
 	MessageLoggingOptions,
 	postMessagesToWindow,
 	RootDataVisualizations,
+	SendEdit,
 } from "./messaging";
 import { AudienceClientMetadata } from "./AudienceMetadata";
 import { ContainerDevtoolsFeature, ContainerDevtoolsFeatureFlags } from "./Features";
@@ -338,6 +339,17 @@ export class ContainerDevtools implements IContainerDevtools, HasContainerKey {
 			}
 			return false;
 		},
+
+		[SendEdit.MessageType]: async (untypedMessage) => {
+			const message = untypedMessage as GetDataVisualization.Message;
+			if (message.data.containerKey === this.containerKey) {
+				const visualization = await this.SendEdit(message.data.fluidObjectId);
+				// this.postDataVisualization(message.data.fluidObjectId, visualization);
+				console.log(visualization);
+				return true;
+			}
+			return false;
+		},
 	};
 
 	/**
@@ -563,6 +575,11 @@ export class ContainerDevtools implements IContainerDevtools, HasContainerKey {
 	private async getDataVisualization(
 		fluidObjectId: FluidObjectId,
 	): Promise<FluidObjectNode | undefined> {
+		return this.dataVisualizer?.render(fluidObjectId) ?? undefined;
+	}
+
+	private async SendEdit(fluidObjectId: FluidObjectId): Promise<FluidObjectNode | undefined> {
+		// this.container.getEntryPoint?.apply(fluidObjectId, ) ?? undefined;
 		return this.dataVisualizer?.render(fluidObjectId) ?? undefined;
 	}
 }

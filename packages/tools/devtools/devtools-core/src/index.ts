@@ -83,6 +83,8 @@ export {
 	GetDevtoolsFeatures,
 	GetRootDataVisualizations,
 	GetTelemetryHistory,
+	SendEdit,
+	Edit,
 	IDevtoolsMessage,
 	IMessageRelay,
 	IMessageRelayEvents,

@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { HasContainerKey, HasFluidObjectId } from "../../CommonInterfaces";
+import { HasContainerKey, HasFluidObjectId, HasValue } from "../../CommonInterfaces";
 import { IDevtoolsMessage } from "../Messages";
 
 /**
@@ -24,7 +24,7 @@ export namespace SendEdit {
 	 *
 	 * @internal
 	 */
-	export type MessageData = HasContainerKey & HasFluidObjectId;
+	export type MessageData = HasContainerKey & HasFluidObjectId & HasValue;
 
 	/**
 	 * Inbound message requesting the list of Containers for which Devtools have been registered.

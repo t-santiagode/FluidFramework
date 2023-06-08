@@ -23,6 +23,7 @@ export {
 	visualizeSharedString,
 	visualizeUnknownSharedObject,
 } from "./DefaultVisualizers";
+export { defaultEditors, editSharedCounter } from "./DefaultEditors";
 export {
 	createHandleNode,
 	FluidHandleNode,

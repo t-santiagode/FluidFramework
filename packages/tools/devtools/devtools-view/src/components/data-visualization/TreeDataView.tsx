@@ -2,7 +2,7 @@
  * Copyright (c) Microsoft Corporation and contributors. All rights reserved.
  * Licensed under the MIT License.
  */
-import React from "react";
+import React, { useState } from "react";
 
 import {
 	HasContainerKey,
@@ -16,8 +16,6 @@ import {
 	// handleIncomingMessage,
 } from "@fluid-experimental/devtools-core";
 
-import { Button } from "@fluentui/react-components";
-import { VehicleShip24Filled } from "@fluentui/react-icons";
 import { Stack, StackItem } from "@fluentui/react";
 import { useMessageRelay } from "../../MessageRelayContext";
 import { DataVisualizationTreeProps } from "./CommonInterfaces";
@@ -57,7 +55,20 @@ export function TreeDataView(props: TreeDataViewProps): React.ReactElement {
 		 * Node with primitive value.
 		 */
 		case VisualNodeKind.ValueNode:
-			return <ValueView label={label} node={node} />;
+			return (
+				<Stack horizontal>
+					<StackItem>{<ValueView label={label} node={node} />}</StackItem>
+					<StackItem>
+						{
+							<EditButton
+								containerKey={containerKey}
+								fluidObjectId={label}
+								label={label}
+							/>
+						}
+					</StackItem>
+				</Stack>
+			);
 		/**
 		 * FluidObjectNode with primitive value.
 		 */
@@ -104,100 +115,34 @@ export function TreeDataView(props: TreeDataViewProps): React.ReactElement {
 }
 
 function EditButton(props: FluidHandleViewProps): React.ReactElement {
-	// const { containerKey, fluidObjectId, label } = props;
-	// const messageRelay = useMessageRelay();
+	const [value, setValue] = useState<string>("");
 
-	// const [edit, setEdit] = React.useState<React.ReactElement | undefined>();
-
-	// React.useEffect(() => {
-	// 	/**
-	// 	 * Handlers for inbound message related to Send Edit.
-	// 	 */
-	// 	const inboundMessageHandlers: InboundHandlers = {
-	// 		[Edit.MessageType]: async (untypedMessage) => {
-	// 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-	// 			const message = untypedMessage as Edit.Message;
-	// 			if (
-	// 				message.data.containerKey === containerKey &&
-	// 				message.data.fluidObjectId === fluidObjectId
-	// 			) {
-	// 				console.log(message.data.value);
-	// 				return true;
-	// 			} else {
-	// 				return false;
-	// 			}
-	// 		},
-	// 	};
-
-	// 	/**
-	// 	 * Event handler for messages coming from the Message Relay.
-	// 	 */
-	// 	function messageHandler(message: Partial<ISourcedDevtoolsMessage>): void {
-	// 		handleIncomingMessage(message, inboundMessageHandlers, {
-	// 			context: loggingContext,
-	// 		});
-	// 	}
-
-	// 	function handleEditClick(): void {
-	// 		messageRelay.on("message", messageHandler);
-
-	// 		// POST Request for FluidObjectNode.
-	// 		messageRelay.postMessage(
-	// 			SendEdit.createMessage({
-	// 				containerKey,
-	// 				fluidObjectId,
-	// 			}),
-	// 		);
-	// 	}
-	// }, [containerKey, setEdit, fluidObjectId, messageRelay]);
-
-	// // if (visualTree === undefined) {
-	// // 	const header = <TreeHeader label={label} inlineValue={<Spinner size="tiny" />} />;
-	// // 	return <TreeItem header={header} />;
-	// // }
-	// const transparentButtonStyle = {
-	// 	backgroundColor: "transparent",
-	// 	border: "none",
-	// 	cursor: "pointer",
-	// };
-	// return (
-	// 	<Button
-	// 		icon={<VehicleShip24Filled />}
-	// 		color="red"
-	// 		style={transparentButtonStyle}
-	// 		onClick={handleEditClick}
-	// 		aria-label="Edit Value"
-	// 	></Button>
-	// );
-
-	const messageRelay = useMessageRelay();
-
-	function handleEditClick(): void {
+	const handleButtonClick = (): void => {
 		const { containerKey, fluidObjectId, label } = props;
 		console.log(label);
 		const sendEditMessage = SendEdit.createMessage({
 			containerKey,
 			fluidObjectId,
+			value,
 		});
+		setValue("");
 
 		// using Refresh button as template
 		// messageRelay.on();
 		console.log("Button works");
 		messageRelay.postMessage(sendEditMessage);
-	}
-	const transparentButtonStyle = {
-		backgroundColor: "transparent",
-		border: "none",
-		cursor: "pointer",
 	};
 
+	const handleTextFieldChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+		setValue(event.target.value);
+	};
+
+	const messageRelay = useMessageRelay();
+
 	return (
-		<Button
-			icon={<VehicleShip24Filled />}
-			color="red"
-			style={transparentButtonStyle}
-			onClick={handleEditClick}
-			aria-label="Edit Value"
-		></Button>
+		<div>
+			<input type="text" value={value} onChange={handleTextFieldChange} />
+			<button onClick={handleButtonClick}>Log Text</button>
+		</div>
 	);
 }

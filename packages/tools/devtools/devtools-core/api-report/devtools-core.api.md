@@ -365,6 +365,12 @@ export interface HasFluidObjectId {
 }
 
 // @internal
+export interface HasValue {
+    // (undocumented)
+    value: string;
+}
+
+// @internal
 export interface IDevtoolsMessage<TData = unknown> {
     data: TData;
     type: string;
@@ -449,7 +455,7 @@ export namespace SendEdit {
     export interface Message extends IDevtoolsMessage<MessageData> {
         type: typeof MessageType;
     }
-    export type MessageData = HasContainerKey & HasFluidObjectId;
+    export type MessageData = HasContainerKey & HasFluidObjectId & HasValue;
 }
 
 // @internal

@@ -55,6 +55,22 @@ export type VisualizeSharedObject = (
 ) => Promise<FluidObjectNode>;
 
 /**
+ * Generates a visual description of the provided {@link @fluidframework/shared-object-base#ISharedObject}'s
+ * current state.
+ *
+ * @param sharedObject - The object whose data will be rendered.
+ * @param visualizeChildData - Callback to render child content of the shared object.
+ *
+ * @returns A visual tree representation of the provided `sharedObject`.
+ *
+ * @public
+ */
+export type EditSharedObject = (
+	sharedObject: ISharedObject,
+	value: string,
+) => Promise<FluidObjectNode>;
+
+/**
  * Recursively renders child contents of a {@link @fluidframework/shared-object-base#ISharedObject}.
  *
  * @param data - The child data to render.
@@ -87,6 +103,23 @@ export interface SharedObjectVisualizers {
 	 * Individual Fluid object visualizers, keyed by {@link SharedObjectType}.
 	 */
 	[k: SharedObjectType]: VisualizeSharedObject;
+}
+
+/**
+ * Specifies editors for different {@link @fluidframework/shared-object-base#ISharedObject} types.
+ *
+ * @remarks
+ *
+ * - `key`: The type of Shared object ({@link @fluidframework/datastore-definitions#IChannelFactory.Type}).
+ *
+ * - `value`: A editor that takes a {@link @fluidframework/shared-object-base#ISharedObject} of the
+ * specified type and generates a corresponding {@link VisualizerNode} for it.
+ */
+export interface SharedObjectEditors {
+	/**
+	 * Individual Fluid object Editors, keyed by {@link SharedObjectType}.
+	 */
+	[k: SharedObjectType]: EditSharedObject;
 }
 
 /**
@@ -150,6 +183,7 @@ export class DataVisualizerGraph
 		 * Policy object for visualizing different kinds of shared objects.
 		 */
 		private readonly visualizers: SharedObjectVisualizers,
+		private readonly editors: SharedObjectEditors,
 	) {
 		super();
 
@@ -204,6 +238,10 @@ export class DataVisualizerGraph
 		// but this library isn't capable of telling the difference.
 		return this.visualizerNodes.get(fluidObjectId)?.render() ?? undefined;
 	}
+	public async edit(fluidObjectId: FluidObjectId, value: string): Promise<void> {
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		this.visualizerNodes.get(fluidObjectId)?.edit(value) ?? undefined;
+	}
 
 	/**
 	 * Adds a visualizer node to the collection for the specified
@@ -216,9 +254,11 @@ export class DataVisualizerGraph
 				this.visualizers[sharedObject.attributes.type] !== undefined
 					? this.visualizers[sharedObject.attributes.type]
 					: visualizeUnknownSharedObject;
+			const editFunction = this.editors[sharedObject.attributes.type];
 			const visualizerNode = new VisualizerNode(
 				sharedObject,
 				visualizationFunction,
+				editFunction,
 				async (handle) => this.registerVisualizerForHandle(handle),
 			);
 
@@ -324,6 +364,7 @@ export class VisualizerNode extends TypedEventEmitter<DataVisualizerEvents> impl
 		 * Encapsulates the policies for rendering different kinds of DDSs.
 		 */
 		private readonly visualizeSharedObject: VisualizeSharedObject,
+		private readonly editSharedObject: EditSharedObject,
 
 		/**
 		 * Registers some child handle to a Fluid object for future rendering.
@@ -381,6 +422,11 @@ export class VisualizerNode extends TypedEventEmitter<DataVisualizerEvents> impl
 		return this.visualizeSharedObject(this.sharedObject, async (data) =>
 			this.renderChildData(data),
 		);
+	}
+
+	public async edit(value: string): Promise<void> {
+		// eslint-disable-next-line no-void
+		void this.editSharedObject(this.sharedObject, value);
 	}
 
 	/**

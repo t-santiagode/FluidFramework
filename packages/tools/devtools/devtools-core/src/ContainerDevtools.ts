@@ -16,6 +16,7 @@ import {
 	FluidObjectNode,
 	RootHandleNode,
 	VisualizeSharedObject,
+	defaultEditors,
 } from "./data-visualization";
 import { IContainerDevtools } from "./IContainerDevtools";
 import { AudienceChangeLogEntry, ConnectionStateChangeLogEntry } from "./Logs";
@@ -341,9 +342,12 @@ export class ContainerDevtools implements IContainerDevtools, HasContainerKey {
 		},
 
 		[SendEdit.MessageType]: async (untypedMessage) => {
-			const message = untypedMessage as GetDataVisualization.Message;
+			const message = untypedMessage as SendEdit.Message;
 			if (message.data.containerKey === this.containerKey) {
-				const visualization = await this.SendEdit(message.data.fluidObjectId);
+				const visualization = await this.SendEdit(
+					message.data.fluidObjectId,
+					message.data.value,
+				);
 				// this.postDataVisualization(message.data.fluidObjectId, visualization);
 				console.log(visualization);
 				return true;
@@ -472,10 +476,14 @@ export class ContainerDevtools implements IContainerDevtools, HasContainerKey {
 		this.dataVisualizer =
 			props.containerData === undefined
 				? undefined
-				: new DataVisualizerGraph(props.containerData, {
-						...defaultVisualizers,
-						...props.dataVisualizers, // User-specified visualizers take precedence over system defaults
-				  });
+				: new DataVisualizerGraph(
+						props.containerData,
+						{
+							...defaultVisualizers,
+							...props.dataVisualizers, // User-specified visualizers take precedence over system defaults
+						},
+						{ ...defaultEditors },
+				  );
 		this.dataVisualizer?.on("update", this.dataUpdateHandler);
 
 		// Bind Container events required for change-logging
@@ -578,8 +586,11 @@ export class ContainerDevtools implements IContainerDevtools, HasContainerKey {
 		return this.dataVisualizer?.render(fluidObjectId) ?? undefined;
 	}
 
-	private async SendEdit(fluidObjectId: FluidObjectId): Promise<FluidObjectNode | undefined> {
+	private async SendEdit(
+		fluidObjectId: FluidObjectId,
+		value: string,
+	): Promise<FluidObjectNode | undefined | void> {
 		// this.container.getEntryPoint?.apply(fluidObjectId, ) ?? undefined;
-		return this.dataVisualizer?.render(fluidObjectId) ?? undefined;
+		return this.dataVisualizer?.edit(fluidObjectId, value) ?? undefined;
 	}
 }

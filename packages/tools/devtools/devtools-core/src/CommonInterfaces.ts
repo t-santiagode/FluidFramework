@@ -45,3 +45,13 @@ export interface HasFluidObjectId {
 	 */
 	fluidObjectId: FluidObjectId;
 }
+
+/**
+ * Base interface used in message data for events targeting a particular Fluid object (DDS) via
+ * a unique ID.
+ *
+ * @internal
+ */
+export interface HasValue {
+	value: string;
+}

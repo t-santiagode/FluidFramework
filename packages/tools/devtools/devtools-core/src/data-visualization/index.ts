@@ -14,7 +14,12 @@ export {
 	VisualizerNode,
 } from "./DataVisualization";
 export { Edit, EditSharedObject, SharedObjectEdit } from "./DataEditing";
-export { defaultEditors } from "./DefaultEditors";
+export {
+	defaultEditors,
+	editSharedCell,
+	editSharedCounter,
+	editSharedString,
+} from "./DefaultEditors";
 export {
 	defaultVisualizers,
 	visualizeSharedCell,
